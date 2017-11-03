@@ -5,16 +5,12 @@
 #include <assert.h>
 
 #include "pipeline.h"
-
-#define SINGLE 1
-#define BATCH 0
-#define REG_NUM 32
+#include "processor.h"
 
 int main(int argc, char *argv[]){
-	int sim_mode=0;//mode flag, 1 for single-cycle, 0 for batch
+	int sim_mode=BATCH;//mode flag, 1 for single-cycle, 0 for batch
 	int c,m,n;
 	int i;//for loop counter
-	long mips_reg[REG_NUM];
 	long pgm_c=0;//program counter
 	long sim_cycle=0;//simulation cycle counter
 	//define your own counter for the usage of each pipeline stage here
@@ -61,12 +57,17 @@ int main(int argc, char *argv[]){
 		printf("Cannot create output file\n");
 		exit(0);
 	}
-	//initialize registers and program counter
-	if(sim_mode==1){
-		for (i=0;i<REG_NUM;i++){
-			mips_reg[i]=0;
-		}
-	}
 	
 	//start your code from here
+	Processor* p = createProcessor(c, m, n, i);
+
+
+	//initialize registers and program counter
+	if(sim_mode==1){
+		for (i=0;i<REG_COUNT;i++){
+			p->regs[i]=0;
+		}
+	}
+
+	simulate(p, sim_mode, input, output);
 }

@@ -1,2 +1,2 @@
-gcc pipeline.c project.c -o project
-./project
+gcc processor.c pipeline.c project.c -o project
+./project "$@"
