@@ -1,0 +1,2 @@
+gcc pipeline.c project.c -o project
+./project
