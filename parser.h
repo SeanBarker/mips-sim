@@ -1,7 +1,7 @@
 #include "instruction.h"
 
-char* progScanner();
+char* progScanner(char*);
 
-char* regNumberConverter();
+char* regNumberConverter(char*);
 
 inst parser();

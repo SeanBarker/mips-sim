@@ -1,0 +1,2 @@
+gcc parser.c tests.c -o run_tests
+./run_tests

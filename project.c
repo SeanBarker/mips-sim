@@ -70,4 +70,7 @@ int main(int argc, char *argv[]){
 	}
 
 	simulate(p, sim_mode, input, output);
+
+	fclose(input);
+	fclose(output);
 }
