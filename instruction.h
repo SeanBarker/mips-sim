@@ -1,4 +1,4 @@
-enum opcode {ADD,ADDI,SUB,MULT,BEQ,LW,SW};
+typedef enum {ADD,ADDI,SUB,MULT,BEQ,LW,SW,UNKNOWN} opcode;
 
 typedef struct {
 	int opcode;

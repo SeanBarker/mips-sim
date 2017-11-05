@@ -28,7 +28,7 @@ char* progScanner(char* line) {
 
 	int parens = 0;
 	bool trailing_space = false;
-	int j;
+	int j = 0;
 	for(int i = 0; i < len; i++) {
 		switch(line[i]) {
 			case '(':
@@ -60,7 +60,7 @@ char* progScanner(char* line) {
 	return result;
 }
 
-bool isNumeric(char* str) {
+bool isNumericReg(char* str) {
     int l = strlen(str);
     for(int i = 0; i < l; i++) {
         if(!isdigit(str[i])) return false;
@@ -97,7 +97,7 @@ char* lookupRegName(char* reg) {
 }
 
 char* normalizeReg(char* reg) {
-    if(isNumeric(reg)) {
+    if(isNumericReg(reg)) {
         int r = atoi(reg);
         if(r < 32) return reg;
         else return NULL;
@@ -108,7 +108,7 @@ char* normalizeReg(char* reg) {
 
 char* regNumberConverter(char* line) {
     if(line == NULL) return NULL;
-    char d[] = "$";
+    char d[] = " ";
 
     char input[strlen(line)];
     strcpy(input, line);
@@ -116,25 +116,106 @@ char* regNumberConverter(char* line) {
     char* result = (char*) malloc(strlen(line) * sizeof(char));
     char* arg = strtok(input, d);
     while(arg) {
-        char* reg = normalizeReg(arg);
-        if(reg == NULL) {
-            printf("Invalid register! %s\n", arg);
-            return NULL;
+        if(strlen(arg) > 0 && arg[0] == '$') {
+            memmove(arg, &arg[1], strlen(arg));
+            char* reg = normalizeReg(arg);
+            if(reg == NULL) {
+                printf("Invalid register! %s\n", arg);
+                return NULL;
+            }
+            arg = reg;
         }
-
-        strcat(result, reg);
+        strcat(result, arg);
+        strcat(result, " ");
         arg = strtok(NULL, d);
     }
 
     return result;
 }
 
+opcode parse_opcode(char* str) {
+    if(strcmp(str, "add") == 0)
+        return ADD;
+    if(strcmp("addi", str) == 0)
+        return ADDI;
+    if(strcmp("sub", str) == 0)
+        return SUB;
+    if(strcmp("mult", str) == 0)
+        return MULT;
+    if(strcmp("beq", str) == 0)
+        return BEQ;
+    if(strcmp("lw", str) == 0)
+        return LW;
+    if(strcmp("sw", str) == 0)
+        return SW;
+    return UNKNOWN;
+}
+
+int* arg_to_reg(int argc, inst* i) {
+    switch(i->opcode) {
+        case ADD:
+        case SUB:
+        case MULT:
+            switch(argc) {
+                case 1: return &(i->rd);
+                case 2: return &(i->rs);
+                case 3: return &(i->rt);
+                default: return NULL;
+            }
+        case ADDI:
+            switch(argc) {
+                case 1: return &(i->rt);
+                case 2: return &(i->rs);
+                case 3: return &(i->imm);
+                default: return NULL;
+            }
+        case BEQ: // 
+        case LW:
+        case SW: // rt offset rs
+            switch(argc) {
+                case 1: return NULL;
+                case 2: return NULL;
+                default: return NULL;
+            }
+        default: return NULL;
+    }
+}
+
+bool parseArg(char* arg, int argc, inst* i) {
+    if(argc == 0) {
+        opcode op = parse_opcode(arg);
+        i->opcode = op;
+        return op != UNKNOWN;
+    }
+
+    int* reg = arg_to_reg(argc, i);
+    if(reg != NULL) {
+        *reg = atoi(arg);
+        return true;
+    } else {
+        return false;
+    }
+}
+
 inst parser(char* line) {
     char d[] = " ";
-    char* arg = strtok(line, d);
-    while(arg) {
-        // do something with arg
 
+    char* ins = regNumberConverter(progScanner(line));
+    char* arg = strtok(ins, d);
+
+    int count = 0;
+
+    inst result;
+
+    while(arg) {
+        if(!parseArg(arg, count, &result)) {
+            printf("Invalid instruction: %s\n", line);
+            return result;
+        }
+
+        count++;
         arg = strtok(NULL, d);
     }
+
+    return result;
 }
