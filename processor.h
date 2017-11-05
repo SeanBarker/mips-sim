@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include "instruction.h"
 
 #define REG_COUNT 32
 
@@ -21,4 +22,6 @@ typedef struct {
 
 Processor* createProcessor(int c, int m, int n, int i);
 
-void simulate(Processor* processor, int sim_mode, FILE* input, FILE* output);
+void simulate(Processor* processor, int sim_mode, inst* i);
+
+void simulateFile(Processor* processor, int sim_mode, FILE* input, FILE* output);

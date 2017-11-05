@@ -1,3 +1,5 @@
+#ifndef INSTRUCTION_HEADER
+#define INSTRUCTION_HEADER
 typedef enum {ADD,ADDI,SUB,MULT,BEQ,LW,SW,UNKNOWN} opcode;
 
 typedef struct {
@@ -7,3 +9,4 @@ typedef struct {
 	int rd;
 	int imm;
 } inst;
+#endif
