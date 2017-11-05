@@ -1,2 +1,2 @@
-gcc -g parser.c processor.c tests.c -o run_tests
+gcc -g parser.c memory.c pipeline.c processor.c tests.c -o run_tests
 ./run_tests

@@ -7,57 +7,57 @@
 #include "stdio.h"
 
 bool handleParens(char c, int* parens) {
-	if(c == '(') {
-		(*parens)++;
-	} else if(c == ')') {
-		(*parens)--;
-	}
+    if(c == '(') {
+        (*parens)++;
+    } else if(c == ')') {
+        (*parens)--;
+    }
 
-	if(*parens < 0) {
-		return false;
-	}
+    if(*parens < 0) {
+        return false;
+    }
 
-	return true;
+    return true;
 }
 
 char* progScanner(char* line) {
     if(line == NULL) return NULL;
 
-	int len = strlen(line);
-	char* result = (char*) malloc(len * sizeof(char));
+    int len = strlen(line);
+    char* result = (char*) malloc(len * sizeof(char));
 
-	int parens = 0;
-	bool trailing_space = false;
-	int j = 0;
-	for(int i = 0; i < len; i++) {
-		switch(line[i]) {
-			case '(':
-			case ')':
-				if(!handleParens(line[i], &parens)) {
-					printf("Mismatched parens\n");
+    int parens = 0;
+    bool trailing_space = false;
+    int j = 0;
+    for(int i = 0; i < len; i++) {
+        switch(line[i]) {
+            case '(':
+            case ')':
+                if(!handleParens(line[i], &parens)) {
+                    printf("Mismatched parens\n");
                     return NULL;
-				}
-				break;
-			case ' ':
-				if(!trailing_space) {
-					result[j++] = ' ';
-					trailing_space = true;
-				}
+                }
+                break;
+            case ' ':
+                if(!trailing_space) {
+                    result[j++] = ' ';
+                    trailing_space = true;
+                }
 
-				break;
+                break;
             case '\n':
                 trailing_space = false;
                 break; // do nothing
-			default:
-				trailing_space = false;
-				result[j++] = line[i];
-		}
-	}
+            default:
+                trailing_space = false;
+                result[j++] = line[i];
+        }
+    }
 
-	// add final \0
-	result[j] = '\0';
+    // add final \0
+    result[j] = '\0';
 
-	return result;
+    return result;
 }
 
 bool isNumericReg(char* str) {
