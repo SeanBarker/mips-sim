@@ -17,11 +17,6 @@ Processor* createProcessor(int c, int m, int n, int i) {
 #define INS_LINE_SIZE 100
 
 void simulate(Processor* processor, Memory* memory, int sim_mode, inst* i) {
-    IF();
-    ID();
-    EX();
-    MEM();
-    WB();
 }
 
 void simulateFile(Processor* processor, Memory* memory, int sim_mode, FILE* input, FILE* output) {
