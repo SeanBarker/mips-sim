@@ -1,48 +1,91 @@
 #include "pipeline.h"
+#include <stdio.h>
+
+static int NPC;
 
 void IF(Processor* p, Memory* m) {
     // load instruction into ir
     p->ir = m->im[p->pc];
     // increment pc
-    p->pc++;
+    NPC = p->pc + 1;
 }
 
-void ID(Processor* p, Memory* m) {
-    // Do nothing right now
+static int A;
+static int B;
+static int Imm;
+
+void ID(Processor* p) {
+    A = p->regs[p->ir.rs];
+    B = p->regs[p->ir.rt];
+    Imm = p->ir.imm;
 }
 
 int computeArith(inst* i) {
     switch(i->opcode) {
-        case ADD: return i->rs + i->rt;
-        case SUB: return i->rs - i->rt;
-        case MULT: return i->rs * i->rt;
-        case ADDI: return i->rs * i->imm;
+        case ADD: return A + B;
+        case SUB: return A - B;
+        case MULT: return A * B;
+        case ADDI: return A + Imm;
     }
 }
 
-void EX(Processor* p, Memory* m) {
+static int ALUOutput;
+static int Cond;
+
+void EX(Processor* p) {
     inst i = p->ir;
-    int result;
     switch(i.opcode) {
         case ADD:
         case SUB:
         case MULT:
         case ADDI:
-            result = computeArith(&i);
+            ALUOutput = computeArith(&i);
             break;
         case SW:
         case LW:
-            result = 0;
+            ALUOutput = A + Imm;
             break;
         case BEQ:
+            ALUOutput = NPC + Imm;
+            Cond = (A == B);
             break;
     }
 }
 
-void MEM() {
+static int LMD;
 
+void MEM(Processor* p, Memory* m) {
+    inst i = p->ir;
+    switch(i.opcode) {
+        case SW:
+            m->data[ALUOutput] = B;
+            break;
+        case LW:
+            LMD = m->data[ALUOutput];
+            break;
+        case BEQ:
+            if(Cond) p->pc = ALUOutput;
+            else     p->pc = NPC;
+            break;
+    }
 }
 
-void WB() {
-    
+void WB(Processor* p) {
+    inst i = p->ir;
+    switch(i.opcode) {
+        case ADD:
+        case SUB:
+        case MULT:
+            p->regs[i.rd] = ALUOutput;
+            break;
+        case ADDI:
+            p->regs[i.rt] = ALUOutput;
+            break;
+        case SW:
+        case LW:
+            p->regs[i.rt] = LMD;
+            break;
+        case BEQ:
+            break;
+    }
 }

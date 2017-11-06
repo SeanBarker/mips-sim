@@ -7,7 +7,8 @@
 
 typedef struct {
     Processor processor;
-    Memory memory; 
+    Memory memory;
+    int sim_mode;
     int c;
     int m;
     int n;

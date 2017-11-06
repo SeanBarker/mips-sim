@@ -4,9 +4,11 @@
 #include <math.h>
 #include <assert.h>
 
+#include "system.h"
 #include "pipeline.h"
-#include "processor.h"
-#include "memory.h"
+
+#define BATCH 0
+#define SINGLE 1
 
 int main(int argc, char *argv[]){
     int sim_mode=BATCH;//mode flag, 1 for single-cycle, 0 for batch
@@ -60,7 +62,7 @@ int main(int argc, char *argv[]){
     }
     
     //start your code from here
-    Processor* p = createProcessor(c, m, n, i);
+    Processor* p = createProcessor();
 
     //initialize registers and program counter
     if(sim_mode==1){
@@ -69,9 +71,15 @@ int main(int argc, char *argv[]){
         }
     }
 
-    Memory memory = createMemory();
+    Simulation sim;
+    sim.processor = *p;
+    sim.sim_mode = sim_mode;
+    sim.sim_cycle = 0;
+    sim.c = c;
+    sim.m = m;
+    sim.n = n;
 
-    simulate(p, &memory, sim_mode, input, output);
+    simulate(&sim, input, output);
 
     fclose(input);
     fclose(output);
