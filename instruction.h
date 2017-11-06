@@ -3,10 +3,10 @@
 typedef enum {ADD,ADDI,SUB,MULT,BEQ,LW,SW,UNKNOWN} opcode;
 
 typedef struct {
-    int opcode;
-    int rs;
-    int rt;
-    int rd;
+    unsigned int opcode;
+    unsigned int rs;
+    unsigned int rt;
+    unsigned int rd;
     int imm;
 } inst;
 #endif

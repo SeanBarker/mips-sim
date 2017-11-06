@@ -1,9 +1,11 @@
-#define IM_SIZE 2000
-#define DATA_SIZE 2000
+#include "instruction.h"
+
+#define IM_SIZE 500
+#define DATA_SIZE 500
 
 typedef struct {
-    unsigned char im[IM_SIZE];
-    unsigned char data[DATA_SIZE];
+    inst im[IM_SIZE];
+    unsigned int data[DATA_SIZE];
 } Memory;
 
 Memory createMemory();

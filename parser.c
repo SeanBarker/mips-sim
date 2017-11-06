@@ -162,19 +162,26 @@ int* arg_to_reg(int argc, inst* i) {
                 case 3: return &(i->rt);
                 default: return NULL;
             }
-        case ADDI:
+        case ADDI: // rt rs imm
             switch(argc) {
                 case 1: return &(i->rt);
                 case 2: return &(i->rs);
                 case 3: return &(i->imm);
                 default: return NULL;
             }
-        case BEQ: // 
+        case BEQ: // rs rt offset
+            switch(argc) {
+                case 1: return &(i->rs);
+                case 2: return &(i->rt);
+                case 3: return &(i->imm);
+                default: return NULL;
+            }
         case LW:
         case SW: // rt offset rs
             switch(argc) {
-                case 1: return NULL;
-                case 2: return NULL;
+                case 1: return &(i->rt);
+                case 2: return &(i->imm);
+                case 3: return &(i->rs);
                 default: return NULL;
             }
         default: return NULL;
