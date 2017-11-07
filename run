@@ -1,3 +1,3 @@
-gcc -g parser.c memory.c pipeline.c processor.c system.c project.c -o project
+gcc -g parser.c memory.c pipeline.c processor.c system.c sim_mips.c -o sim_mips
 
-./project "$@"
+./sim_mips "$@"
