@@ -7,7 +7,7 @@ void IF(Processor* p, Memory* m) {
     // load instruction into ir
     if_id->ir = m->im[p->pc];
     // store PC+1 in next PC
-    if_id->npc = p->pc + 1;
+    if_id->npc = p->pc++;
 }
 
 void ID(Processor* p) {

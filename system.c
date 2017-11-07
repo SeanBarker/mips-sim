@@ -9,12 +9,12 @@
 void runProgram(Simulation* sim, FILE* output) {
     Processor* p = &(sim->processor);
     Memory* m = &(sim->memory);
-    while(p->pc < sim->inst_count) {
-        IF(p, m);
-        ID(p);
-        EX(p);
-        MEM(p, m);
+    while(true) { // change this eventually to handle program ending
         WB(p);
+        MEM(p, m);
+        EX(p);
+        ID(p);
+        IF(p, m);
 
         printf("cycle: %ld ", sim->sim_cycle);
         if(sim->sim_mode==1){
@@ -23,7 +23,6 @@ void runProgram(Simulation* sim, FILE* output) {
             }
         }
         printf("%ld\n", p->pc);
-        p->pc+=1;
         sim->sim_cycle+=1;
         // test_counter++;
         printf("press ENTER to continue\n");
