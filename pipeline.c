@@ -81,7 +81,7 @@ void MEM(Processor* p, Memory* m) {
             break;
         case BEQ:
             if(ex_mem->cond) p->pc = ex_mem->alu_out;
-            else            p->pc = 0; // CHANGE THIS
+            else             p->pc = 0; // CHANGE THIS
             break;
     }
 }
