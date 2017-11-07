@@ -9,7 +9,7 @@
 void runProgram(Simulation* sim, FILE* output) {
     Processor* p = &(sim->processor);
     Memory* m = &(sim->memory);
-    while(p->pc < 500) {
+    while(p->pc < sim->inst_count) {
         IF(p, m);
         ID(p);
         EX(p);
@@ -47,6 +47,7 @@ void loadProgram(Simulation* sim, FILE* input) {
             exit(1);
         }
     }
+    sim->inst_count = c;
 }
 
 void simulate(Simulation* sim, FILE* input, FILE* output) {

@@ -1,91 +1,108 @@
 #include "pipeline.h"
 #include <stdio.h>
 
-static int NPC;
-
 void IF(Processor* p, Memory* m) {
-    // load instruction into ir
-    p->ir = m->im[p->pc];
-    // increment pc
-    NPC = p->pc + 1;
-}
+    IF_ID if_id = p->if_id;
 
-static int A;
-static int B;
-static int Imm;
+    // load instruction into ir
+    if_id.ir = m->im[p->pc];
+    // store PC+1 in next PC
+    if_id.npc = p->pc + 1;
+}
 
 void ID(Processor* p) {
-    A = p->regs[p->ir.rs];
-    B = p->regs[p->ir.rt];
-    Imm = p->ir.imm;
+    IF_ID if_id = p->if_id;
+    ID_EX id_ex = p->id_ex;
+
+    inst i = id_ex.ir = if_id.ir; // pass on instruction
+    id_ex.npc = if_id.npc; // pass on npc
+
+    // decode instruction
+    id_ex.a = p->regs[id_ex.ir.rs];
+    id_ex.b = p->regs[id_ex.ir.rt];
+    id_ex.imm = id_ex.ir.imm;
 }
 
-int computeArith(inst* i) {
+int computeArith(inst* i, int a, int b, int imm) {
     switch(i->opcode) {
-        case ADD: return A + B;
-        case SUB: return A - B;
-        case MULT: return A * B;
-        case ADDI: return A + Imm;
+        case ADD: return a + b;
+        case SUB: return a - b;
+        case MULT: return a * b;
+        case ADDI: return a + imm;
     }
 }
 
-static int ALUOutput;
-static int Cond;
-
 void EX(Processor* p) {
-    inst i = p->ir;
+    ID_EX id_ex = p->id_ex;
+    EX_MEM ex_mem = p->ex_mem;
+
+    int a = id_ex.a;
+    int b = id_ex.b;
+    int imm = id_ex.imm;
+
+    inst i = ex_mem.ir = id_ex.ir; // pass on instruction
+    ex_mem.b = b; // pass on B value
+
+    // execute instruction
     switch(i.opcode) {
         case ADD:
         case SUB:
         case MULT:
         case ADDI:
-            ALUOutput = computeArith(&i);
+            // compute arithmetic result from a, b, and imm
+            ex_mem.alu_out = computeArith(&i, a, b, imm);
             break;
         case SW:
         case LW:
-            ALUOutput = A + Imm;
+            ex_mem.alu_out = a + imm;
             break;
         case BEQ:
-            ALUOutput = NPC + Imm;
-            Cond = (A == B);
+            ex_mem.alu_out = id_ex.npc + imm;
+            ex_mem.cond = (a == b);
             break;
     }
 }
 
-static int LMD;
-
 void MEM(Processor* p, Memory* m) {
-    inst i = p->ir;
+    EX_MEM ex_mem = p->ex_mem;
+    MEM_WB mem_wb = p->mem_wb;
+
+    inst i = mem_wb.ir = ex_mem.ir; // pass on instruction
+
     switch(i.opcode) {
         case SW:
-            m->data[ALUOutput] = B;
+            // store value B in memory location alu_out
+            m->data[ex_mem.alu_out] = ex_mem.b;
             break;
         case LW:
-            LMD = m->data[ALUOutput];
+            // read memory location alu_out, store result in m
+            mem_wb.m = m->data[ex_mem.alu_out];
             break;
         case BEQ:
-            if(Cond) p->pc = ALUOutput;
-            else     p->pc = NPC;
+            if(ex_mem.cond) p->pc = ex_mem.alu_out;
+            else            p->pc = 0; // CHANGE THIS
             break;
     }
 }
 
 void WB(Processor* p) {
-    inst i = p->ir;
+    MEM_WB mem_wb = p->mem_wb;
+
+    inst i = mem_wb.ir;
     switch(i.opcode) {
         case ADD:
         case SUB:
         case MULT:
-            p->regs[i.rd] = ALUOutput;
+            p->regs[i.rd] = mem_wb.alu_out;
             break;
         case ADDI:
-            p->regs[i.rt] = ALUOutput;
+            p->regs[i.rt] = mem_wb.alu_out;
             break;
         case SW:
-        case LW:
-            p->regs[i.rt] = LMD;
+            p->regs[i.rt] = mem_wb.m;
             break;
         case BEQ:
-            break;
+        case LW: 
+            break; // do nothing
     }
 }

@@ -13,6 +13,7 @@ typedef struct {
     int m;
     int n;
 
+    long inst_count; // total number of instructions
     long sim_cycle;
 } Simulation;
 
