@@ -40,7 +40,6 @@ void loadProgram(Simulation* sim, FILE* input) {
         if(c < IM_SIZE) {
             // load instruction into memory
             sim->memory.im[c++] = i;
-            // memcpy(&(memory->im[c * sizeof(inst)]), &i, sizeof(inst));
         } else {
             printf("Assembly file too large!");
             exit(1);
