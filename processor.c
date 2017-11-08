@@ -8,6 +8,7 @@ Processor* createProcessor() {
     p->id_ex.ready = false;
     p->ex_mem.ready = false;
     p->mem_wb.ready = false;
+    p->no_op = false;
 
     return p;
 }

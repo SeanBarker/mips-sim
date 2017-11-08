@@ -36,6 +36,7 @@ typedef struct {
 typedef struct {
     long pc;
     long regs[REG_COUNT];
+    bool no_op;
     IF_ID if_id;
     ID_EX id_ex;
     EX_MEM ex_mem;

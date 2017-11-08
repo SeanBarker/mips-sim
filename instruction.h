@@ -9,4 +9,6 @@ typedef struct {
     unsigned int rd;
     int imm;
 } inst;
+
+static const inst NOP = {0};
 #endif

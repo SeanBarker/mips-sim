@@ -1,13 +1,21 @@
 #include "pipeline.h"
-#include <stdio.h>
+#include <stdbool.h>
 
 void IF(Processor* p, Memory* m) {
     IF_ID* if_id = &(p->if_id);
 
-    // load instruction into ir
-    if_id->ir = m->im[p->pc];
-    // store PC+1 in next PC
-    if_id->npc = p->pc++;
+    if(p->no_op) {
+        if_id->ir = NOP;
+    } else {
+        // load instruction into ir
+        if_id->ir = m->im[p->pc];
+        // store PC+1 in next PC
+        if_id->npc = p->pc++;
+    }
+}
+
+bool dataHazard(Processor* p) {
+    return false;
 }
 
 void ID(Processor* p) {
