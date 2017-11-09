@@ -4,10 +4,12 @@
 #define REG_COUNT 32
 
 typedef struct {
+    bool ready;
     inst ir; // instruction register
 } IF_ID;
 
 typedef struct {
+    bool ready;
     inst ir;
     int a; // oper 1
     int b; // oper 2
@@ -15,6 +17,7 @@ typedef struct {
 } ID_EX;
 
 typedef struct {
+    bool ready;
     inst ir;
     int b;       // oper 2
     int alu_out; // arithmetic result, or branch target
@@ -22,6 +25,7 @@ typedef struct {
 } EX_MEM;
 
 typedef struct {
+    bool ready;
     inst ir;
     int alu_out; // passing on alu_out from EX_MEM
     int m;       // result of memory lookup (lw)
