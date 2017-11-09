@@ -4,18 +4,60 @@
 void IF(Processor* p, Memory* m) {
     IF_ID* if_id = &(p->if_id);
 
-    if(p->no_op) {
+    if(p->no_op > 0) {
         if_id->ir = NOP;
+        p->no_op--;
     } else {
         // load instruction into ir
         if_id->ir = m->im[p->pc];
         // store PC+1 in next PC
-        if_id->npc = p->pc++;
+        p->pc++;
     }
 }
 
-bool dataHazard(Processor* p) {
-    return false;
+bool isNOP(inst* i) {
+    return i->rs == 0 && i->rt == 0 && i->rd == 0 && i->imm == 0;
+}
+
+int destReg(inst* i) {
+    switch(i->opcode) {
+        case ADD:
+        case SUB:
+        case MULT:
+            return i->rd;
+        case ADDI:
+        case SW:
+            return i->rt;
+        case BEQ:
+        case LW:
+            return -1;
+    }
+}
+
+bool dataHazard(inst* i1, inst* i2) {
+    if(isNOP(i1) || isNOP(i2)) return false;
+
+    int dest = destReg(i1);
+    switch(i2->opcode) {
+        case ADD:
+        case SUB:
+        case MULT:
+            return i2->rs == dest || i2->rt == dest;
+        case ADDI:
+            return i2->rs == dest;
+        default:
+            return false;
+    }
+}
+
+void flushID_EX(Processor* p) {
+    ID_EX* id_ex = &(p->id_ex);
+
+    id_ex->ir = NOP;
+    id_ex->a = 0;
+    id_ex->b = 0;
+    id_ex->imm = 0;
+    p->pc--;
 }
 
 void ID(Processor* p) {
@@ -23,12 +65,23 @@ void ID(Processor* p) {
     ID_EX* id_ex = &(p->id_ex);
 
     inst i = id_ex->ir = if_id->ir; // pass on instruction
-    id_ex->npc = if_id->npc; // pass on npc
 
     // decode instruction
-    id_ex->a = p->regs[id_ex->ir.rs];
-    id_ex->b = p->regs[id_ex->ir.rt];
-    id_ex->imm = id_ex->ir.imm;
+    id_ex->a = p->regs[i.rs];
+    id_ex->b = p->regs[i.rt];
+    id_ex->imm = i.imm;
+
+    // insert NOP if branch
+    if(i.opcode == BEQ)
+        p->no_op++;
+
+    // handle data hazards
+    if(dataHazard(&(p->ex_mem.ir), &i)) {
+        flushID_EX(p);
+        p->no_op++;
+    } else if(dataHazard(&(p->mem_wb.ir), &i)) {
+        flushID_EX(p);
+    }
 }
 
 int computeArith(inst* i, int a, int b, int imm) {
@@ -65,7 +118,7 @@ void EX(Processor* p) {
             ex_mem->alu_out = a + imm;
             break;
         case BEQ:
-            ex_mem->alu_out = id_ex->npc + imm;
+            ex_mem->alu_out = p->pc + imm;
             ex_mem->cond = (a == b);
             break;
     }
@@ -97,18 +150,18 @@ void MEM(Processor* p, Memory* m) {
 void WB(Processor* p) {
     MEM_WB* mem_wb = &(p->mem_wb);
 
-    inst i = mem_wb->ir;
-    switch(i.opcode) {
+    int dest = destReg(&(mem_wb->ir));
+    switch(mem_wb->ir.opcode) {
         case ADD:
         case SUB:
         case MULT:
-            p->regs[i.rd] = mem_wb->alu_out;
+            p->regs[dest] = mem_wb->alu_out;
             break;
         case ADDI:
-            p->regs[i.rt] = mem_wb->alu_out;
+            p->regs[dest] = mem_wb->alu_out;
             break;
         case SW:
-            p->regs[i.rt] = mem_wb->m;
+            p->regs[dest] = mem_wb->m;
             break;
         case BEQ:
         case LW: 

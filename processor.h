@@ -6,13 +6,11 @@
 typedef struct {
     bool ready;
     inst ir; // instruction register
-    int npc; // next pc
 } IF_ID;
 
 typedef struct {
     bool ready;
     inst ir;
-    int npc;
     int a; // oper 1
     int b; // oper 2
     int imm;
@@ -36,7 +34,7 @@ typedef struct {
 typedef struct {
     long pc;
     long regs[REG_COUNT];
-    bool no_op;
+    int no_op;
     IF_ID if_id;
     ID_EX id_ex;
     EX_MEM ex_mem;
