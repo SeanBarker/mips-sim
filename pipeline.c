@@ -118,8 +118,8 @@ void EX(Processor* p) {
             ex_mem->alu_out = a + imm;
             break;
         case BEQ:
-            ex_mem->alu_out = p->pc + imm;
-            ex_mem->cond = (a == b);
+            if(a == b) p->pc += imm;
+            else       p->pc += 1; // change this to fix branching
             break;
     }
 }
@@ -141,8 +141,6 @@ void MEM(Processor* p, Memory* m) {
             mem_wb->m = m->data[ex_mem->alu_out];
             break;
         case BEQ:
-            if(ex_mem->cond) p->pc = ex_mem->alu_out;
-            else             p->pc = 0; // CHANGE THIS
             break;
     }
 }
