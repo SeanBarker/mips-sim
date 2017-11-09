@@ -4,11 +4,9 @@
 Processor* createProcessor() {
     Processor* p = (Processor*) malloc(sizeof(Processor));
     p->pc = 0;
-    p->if_id.ready = true;
-    p->id_ex.ready = false;
-    p->ex_mem.ready = false;
-    p->mem_wb.ready = false;
-    p->no_op = false;
+    p->if_stall = 0;
+    p->ex_stall = 0;
+    p->mem_stall = 0;
 
     return p;
 }
