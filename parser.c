@@ -140,7 +140,7 @@ opcode parse_opcode(char* str) {
         return ADDI;
     if(strcmp("sub", str) == 0)
         return SUB;
-    if(strcmp("mult", str) == 0)
+    if(strcmp("mul", str) == 0)
         return MUL;
     if(strcmp("beq", str) == 0)
         return BEQ;
