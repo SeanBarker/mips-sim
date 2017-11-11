@@ -48,8 +48,8 @@ bool dataHazard(inst* i1, inst* i2) {
         case MUL:
             return i2->rs == dest || i2->rt == dest;
         case ADDI:
+        case LW:
             return i2->rs == dest;
-        case LW: // change this
         case SW: 
         default:
             return false;
