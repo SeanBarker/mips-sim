@@ -11,10 +11,10 @@ void runProgram(Simulation* sim, FILE* output) {
     Memory* m = &(sim->memory);
     while(true) { // change this eventually to handle program ending
         WB(p);
-        MEM(p, m);
-        EX(p);
+        MEM(p, m, sim->c);
+        EX(p, sim->m, sim->n);
         ID(p);
-        IF(p, m);
+        IF(p, m, sim->c);
 
         printf("cycle: %ld ", sim->sim_cycle);
         if(sim->sim_mode==1){

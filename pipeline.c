@@ -1,7 +1,7 @@
 #include "pipeline.h"
 #include <stdbool.h>
 
-void IF(Processor* p, Memory* m) {
+void IF(Processor* p, Memory* m, int c) {
     if(p->if_stall == 0) {
         IF_ID* if_id = &(p->if_id);
         if(p->no_op > 0) {
@@ -13,7 +13,7 @@ void IF(Processor* p, Memory* m) {
             // store PC+1 in next PC
             p->pc++;
         }
-        p->if_stall = 5 + p->id_stall;
+        p->if_stall = c + p->id_stall;
     } else {
         p->if_stall--;
     }
@@ -105,7 +105,7 @@ int computeArith(inst* i, int a, int b, int imm) {
     }
 }
 
-void EX(Processor* p) {
+void EX(Processor* p, int m, int n) {
     if(p->ex_stall == 0) {
         ID_EX* id_ex = &(p->id_ex);
         EX_MEM* ex_mem = &(p->ex_mem);
@@ -135,13 +135,14 @@ void EX(Processor* p) {
                 break;
         }
 
-        p->ex_stall = 5 + p->mem_stall;
+        int cost = i.opcode == MULT ? m : n;
+        p->ex_stall = cost + p->mem_stall;
     } else {
         p->ex_stall--;
     }
 }
 
-void MEM(Processor* p, Memory* m) {
+void MEM(Processor* p, Memory* m, int c) {
     if(p->mem_stall == 0) {
         EX_MEM* ex_mem = &(p->ex_mem);
         MEM_WB* mem_wb = &(p->mem_wb);
@@ -162,7 +163,7 @@ void MEM(Processor* p, Memory* m) {
                 break;
         }
 
-        p->mem_stall = 6 + p->wb_stall;
+        p->mem_stall = c + p->wb_stall;
     } else {
         p->mem_stall--;
     }
