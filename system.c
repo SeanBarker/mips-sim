@@ -37,6 +37,12 @@ void loadProgram(Simulation* sim, FILE* input) {
     // read assembly line
     while(fgets(line, INS_LINE_SIZE, input) != NULL) {
         inst i = parser(line);
+
+        if(i.opcode == UNKNOWN) {
+            printf("The simulator encountered an error in instruction %d: %s\n", c+1, line);
+            exit(1);
+        }
+
         if(c < IM_SIZE) {
             // load instruction into memory
             sim->memory.im[c++] = i;

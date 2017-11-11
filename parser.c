@@ -120,7 +120,7 @@ char* regNumberConverter(char* line) {
             memmove(arg, &arg[1], strlen(arg));
             char* reg = normalizeReg(arg);
             if(reg == NULL) {
-                printf("Invalid register! %s\n", arg);
+                printf("Invalid register: %s\n", arg);
                 return NULL;
             }
             arg = reg;
@@ -151,7 +151,7 @@ opcode parse_opcode(char* str) {
     return UNKNOWN;
 }
 
-int* arg_to_reg(int argc, inst* i) {
+int* parse_operand(int argc, inst* i) {
     switch(i->opcode) {
         case ADD:
         case SUB:
@@ -192,31 +192,40 @@ bool parseArg(char* arg, int argc, inst* i) {
     if(argc == 0) {
         opcode op = parse_opcode(arg);
         i->opcode = op;
-        return op != UNKNOWN;
+
+        if(op == UNKNOWN) {
+            printf("Invalid operation: %s\n", arg);
+            return false;
+        } else {
+            return true;
+        }
     }
 
-    int* reg = arg_to_reg(argc, i);
-    if(reg != NULL) {
-        *reg = atoi(arg);
+    int* operand = parse_operand(argc, i);
+    if(operand != NULL) {
+        *operand = atoi(arg);
         return true;
     } else {
+        printf("Invalid operand: %s\n", arg);
         return false;
     }
 }
 
 inst parser(char* line) {
-    char d[] = " ";
-
     char* ins = regNumberConverter(progScanner(line));
-    char* arg = strtok(ins, d);
-
-    int count = 0;
 
     inst result;
+    if(ins == NULL) {
+        result.opcode = UNKNOWN;
+        return result;
+    }
 
+    char d[] = " ";
+    char* arg = strtok(ins, d);
+    int count = 0;
     while(arg) {
         if(!parseArg(arg, count, &result)) {
-            printf("Invalid instruction: %s\n", line);
+            result.opcode = UNKNOWN;
             return result;
         }
 
