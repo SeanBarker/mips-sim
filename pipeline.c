@@ -2,15 +2,20 @@
 #include <stdbool.h>
 
 void IF(Processor* p, Memory* m) {
-    IF_ID* if_id = &(p->if_id);
-    if(p->no_op > 0) {
-        if_id->ir = NOP;
-        p->no_op--;
+    if(p->if_stall == 0) {
+        IF_ID* if_id = &(p->if_id);
+        if(p->no_op > 0) {
+            if_id->ir = NOP;
+            p->no_op--;
+        } else {
+            // load instruction into ir
+            if_id->ir = m->im[p->pc];
+            // store PC+1 in next PC
+            p->pc++;
+        }
+        p->if_stall = 5 + p->id_stall;
     } else {
-        // load instruction into ir
-        if_id->ir = m->im[p->pc];
-        // store PC+1 in next PC
-        p->pc++;
+        p->if_stall--;
     }
 }
 
@@ -62,7 +67,7 @@ void flushID_EX(Processor* p) {
 }
 
 void ID(Processor* p) {
-    if(p->if_stall == 0) {
+    if(p->id_stall == 0) {
         IF_ID* if_id = &(p->if_id);
         ID_EX* id_ex = &(p->id_ex);
 
@@ -84,6 +89,10 @@ void ID(Processor* p) {
         } else if(dataHazard(&(p->mem_wb.ir), &i)) {
             flushID_EX(p);
         }
+
+        p->id_stall = 0 + p->ex_stall;
+    } else {
+        p->id_stall--;
     }
 }
 
@@ -125,6 +134,10 @@ void EX(Processor* p) {
                 if(a == b) p->pc += imm;
                 break;
         }
+
+        p->ex_stall = 5 + p->mem_stall;
+    } else {
+        p->ex_stall--;
     }
 }
 
@@ -148,11 +161,15 @@ void MEM(Processor* p, Memory* m) {
             case BEQ:
                 break;
         }
+
+        p->mem_stall = 6 + p->wb_stall;
+    } else {
+        p->mem_stall--;
     }
 }
 
 void WB(Processor* p) {
-    if(p->mem_stall == 0) {
+    if(p->wb_stall == 0) {
         MEM_WB* mem_wb = &(p->mem_wb);
 
         int dest = destReg(&(mem_wb->ir));
@@ -172,5 +189,9 @@ void WB(Processor* p) {
             case SW: 
                 break; // do nothing
         }
+
+        p->wb_stall = 0;
+    } else {
+        p->wb_stall--;
     }
 }
