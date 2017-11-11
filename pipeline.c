@@ -1,7 +1,7 @@
 #include "pipeline.h"
 #include <stdbool.h>
 
-void IF(Processor* p, Memory* m, int c) {
+void IF(Processor* p, Memory* m, Simulation* sim) {
     if(p->if_stall == 0) {
         IF_ID* if_id = &(p->if_id);
         if(p->no_op > 0) {
@@ -13,7 +13,7 @@ void IF(Processor* p, Memory* m, int c) {
             // store PC+1 in next PC
             p->pc++;
         }
-        p->if_stall = c + p->id_stall;
+        p->if_stall = sim->c + p->id_stall;
     } else {
         p->if_stall--;
     }
@@ -66,7 +66,7 @@ void flushID_EX(Processor* p) {
     p->pc--;
 }
 
-void ID(Processor* p) {
+void ID(Processor* p, Simulation* sim) {
     if(p->id_stall == 0) {
         IF_ID* if_id = &(p->if_id);
         ID_EX* id_ex = &(p->id_ex);
@@ -105,7 +105,7 @@ int computeArith(inst* i, int a, int b, int imm) {
     }
 }
 
-void EX(Processor* p, int m, int n) {
+void EX(Processor* p, Simulation* sim) {
     if(p->ex_stall == 0) {
         ID_EX* id_ex = &(p->id_ex);
         EX_MEM* ex_mem = &(p->ex_mem);
@@ -135,14 +135,14 @@ void EX(Processor* p, int m, int n) {
                 break;
         }
 
-        int cost = i.opcode == MUL ? m : n;
+        int cost = i.opcode == MUL ? sim->m : sim->n;
         p->ex_stall = cost + p->mem_stall;
     } else {
         p->ex_stall--;
     }
 }
 
-void MEM(Processor* p, Memory* m, int c) {
+void MEM(Processor* p, Memory* m, Simulation* sim) {
     if(p->mem_stall == 0) {
         EX_MEM* ex_mem = &(p->ex_mem);
         MEM_WB* mem_wb = &(p->mem_wb);
@@ -163,15 +163,18 @@ void MEM(Processor* p, Memory* m, int c) {
                 break;
         }
 
-        p->mem_stall = c + p->wb_stall;
+        p->mem_stall = sim->c + p->wb_stall;
     } else {
         p->mem_stall--;
     }
 }
 
-void WB(Processor* p) {
+void WB(Processor* p, Simulation* sim) {
     if(p->wb_stall == 0) {
         MEM_WB* mem_wb = &(p->mem_wb);
+
+        // halt program after HALT reaches WB state
+        if(mem_wb->ir.halt) sim->halt = true;
 
         int dest = destReg(&(mem_wb->ir));
         switch(mem_wb->ir.opcode) {

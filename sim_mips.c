@@ -71,6 +71,7 @@ int main(int argc, char *argv[]){
     sim.processor = *p;
     sim.sim_mode = sim_mode;
     sim.sim_cycle = 0;
+    sim.prog_name = argv[5];
     sim.c = c;
     sim.m = m;
     sim.n = n;

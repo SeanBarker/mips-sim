@@ -3,30 +3,66 @@
 #include "parser.h"
 #include "string.h"
 #include <stdlib.h>
+#include <stdbool.h>
 
 #define INS_LINE_SIZE 100
+
+void pipeline(Simulation* sim) {
+    Processor* p = &(sim->processor);
+    Memory* m = &(sim->memory);
+
+    WB(p, sim);
+    MEM(p, m, sim);
+    EX(p, sim);
+    ID(p, sim);
+    IF(p, m, sim);
+}
 
 void runProgram(Simulation* sim, FILE* output) {
     Processor* p = &(sim->processor);
     Memory* m = &(sim->memory);
-    while(true) { // change this eventually to handle program ending
-        WB(p);
-        MEM(p, m, sim->c);
-        EX(p, sim->m, sim->n);
-        ID(p);
-        IF(p, m, sim->c);
+
+    sim->if_count = 0;
+    sim->id_count = 0;
+    sim->ex_count = 0;
+    sim->mem_count = 0;
+    sim->wb_count = 0;
+    sim->halt = false;
+
+    while(!sim->halt) {
+        pipeline(sim);
 
         printf("cycle: %ld ", sim->sim_cycle);
         if(sim->sim_mode==1){
             for (int i=1;i<32;i++){
-                printf("%ld  ", p->regs[i]);
+                printf("%d  ", p->regs[i]);
             }
         }
-        printf("%ld\n", p->pc);
+        printf("%d\n", p->pc);
         sim->sim_cycle+=1;
-        // test_counter++;
+
         printf("press ENTER to continue\n");
         while(getchar() != '\n');
+    }
+
+    if(sim->sim_mode==0) {
+        double ifUtil = ((double) sim->if_count) / sim->sim_cycle;
+        double idUtil = ((double) sim->id_count) / sim->sim_cycle;
+        double exUtil = ((double) sim->ex_count) / sim->sim_cycle;
+        double memUtil = ((double) sim->mem_count) / sim->sim_cycle;
+        double wbUtil = ((double) sim->wb_count) / sim->sim_cycle;
+
+        fprintf(output,"program name: %s\n", sim->prog_name);
+        fprintf(output,"stage utilization: %f  %f  %f  %f  %f \n",
+                             ifUtil, idUtil, exUtil, memUtil, wbUtil);
+                     // add the (double) stage_counter/sim_cycle for each 
+                     // stage following sequence IF ID EX MEM WB
+        
+        fprintf(output,"register values ");
+        for (int i=1;i<32;i++){
+            fprintf(output,"%d  ",p->regs[i]);
+        }
+        fprintf(output,"%d\n",p->pc);
     }
 
 }

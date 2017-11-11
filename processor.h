@@ -28,8 +28,8 @@ typedef struct {
 } MEM_WB;
 
 typedef struct {
-    long pc;
-    long regs[REG_COUNT];
+    int pc;
+    int regs[REG_COUNT];
     int no_op;
     IF_ID if_id;
     ID_EX id_ex;

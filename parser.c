@@ -134,19 +134,19 @@ char* regNumberConverter(char* line) {
 }
 
 opcode parse_opcode(char* str) {
-    if(strcmp(str, "add") == 0)
+    if(!strcmp(str, "add"))
         return ADD;
-    if(strcmp("addi", str) == 0)
+    if(!strcmp("addi", str))
         return ADDI;
-    if(strcmp("sub", str) == 0)
+    if(!strcmp("sub", str))
         return SUB;
-    if(strcmp("mul", str) == 0)
+    if(!strcmp("mul", str))
         return MUL;
-    if(strcmp("beq", str) == 0)
+    if(!strcmp("beq", str))
         return BEQ;
-    if(strcmp("lw", str) == 0)
+    if(!strcmp("lw", str))
         return LW;
-    if(strcmp("sw", str) == 0)
+    if(!strcmp("sw", str))
         return SW;
     return UNKNOWN;
 }
@@ -212,9 +212,12 @@ bool parseArg(char* arg, int argc, inst* i) {
 }
 
 inst parser(char* line) {
-    char* ins = regNumberConverter(progScanner(line));
-
     inst result;
+
+    if(!strcmp("halt", line)) return HALT;
+    else result.halt = false;
+
+    char* ins = regNumberConverter(progScanner(line));
     if(ins == NULL) {
         result.opcode = UNKNOWN;
         return result;

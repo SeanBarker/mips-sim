@@ -1,7 +1,7 @@
 #include "system.h"
 
-void IF(Processor*, Memory*, int);
-void ID(Processor*);
-void EX(Processor*, int, int);
-void MEM(Processor*, Memory*, int);
-void WB(Processor*);
+void IF(Processor*, Memory*, Simulation*);
+void ID(Processor*, Simulation*);
+void EX(Processor*, Simulation*);
+void MEM(Processor*, Memory*, Simulation*);
+void WB(Processor*, Simulation*);
