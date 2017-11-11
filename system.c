@@ -32,17 +32,16 @@ void runProgram(Simulation* sim, FILE* output) {
     while(!sim->halt) {
         pipeline(sim);
 
-        printf("cycle: %ld ", sim->sim_cycle);
         if(sim->sim_mode==1){
+            printf("cycle: %ld ", sim->sim_cycle);
             for (int i=1;i<32;i++){
                 printf("%d  ", p->regs[i]);
             }
+            printf("%d\n", p->pc);
+            printf("press ENTER to continue\n");
+            while(getchar() != '\n');
         }
-        printf("%d\n", p->pc);
         sim->sim_cycle+=1;
-
-        printf("press ENTER to continue\n");
-        while(getchar() != '\n');
     }
 
     if(sim->sim_mode==0) {
