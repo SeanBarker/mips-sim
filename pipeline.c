@@ -12,6 +12,8 @@ void IF(Processor* p, Memory* m, Simulation* sim) {
             if_id->ir = m->im[p->pc];
             // store PC+1 in next PC
             p->pc++;
+            // if is doing useful work
+            sim->if_count++;
         }
         p->if_stall = sim->c + p->id_stall;
     } else {
@@ -90,6 +92,9 @@ void ID(Processor* p, Simulation* sim) {
             flushID_EX(p);
         }
 
+        // if not NOP id is doing useful work
+        if(!isNOP(&id_ex->ir)) sim->id_count++;
+
         p->id_stall = 0 + p->ex_stall;
     } else {
         p->id_stall--;
@@ -135,6 +140,9 @@ void EX(Processor* p, Simulation* sim) {
                 break;
         }
 
+        // if not NOP ex is doing useful work
+        if(!isNOP(&ex_mem->ir)) sim->ex_count++;
+
         int cost = i.opcode == MUL ? sim->m : sim->n;
         p->ex_stall = cost + p->mem_stall;
     } else {
@@ -162,6 +170,8 @@ void MEM(Processor* p, Memory* m, Simulation* sim) {
             case BEQ:
                 break;
         }
+
+        if(!isNOP(&mem_wb->ir)) sim->mem_count++;
 
         p->mem_stall = sim->c + p->wb_stall;
     } else {
@@ -193,6 +203,8 @@ void WB(Processor* p, Simulation* sim) {
             case SW: 
                 break; // do nothing
         }
+
+        if(!isNOP(&mem_wb->ir)) sim->wb_count++;
 
         p->wb_stall = 0;
     } else {
