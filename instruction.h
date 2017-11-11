@@ -1,6 +1,6 @@
 #ifndef INSTRUCTION_HEADER
 #define INSTRUCTION_HEADER
-typedef enum {ADD,ADDI,SUB,MULT,BEQ,LW,SW,UNKNOWN} opcode;
+typedef enum {ADD,ADDI,SUB,MUL,BEQ,LW,SW,UNKNOWN} opcode;
 
 typedef struct {
     unsigned int opcode;

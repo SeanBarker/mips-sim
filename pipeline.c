@@ -27,7 +27,7 @@ int destReg(inst* i) {
     switch(i->opcode) {
         case ADD:
         case SUB:
-        case MULT:
+        case MUL:
             return i->rd;
         case ADDI:
         case LW:
@@ -45,7 +45,7 @@ bool dataHazard(inst* i1, inst* i2) {
     switch(i2->opcode) {
         case ADD:
         case SUB:
-        case MULT:
+        case MUL:
             return i2->rs == dest || i2->rt == dest;
         case ADDI:
             return i2->rs == dest;
@@ -100,7 +100,7 @@ int computeArith(inst* i, int a, int b, int imm) {
     switch(i->opcode) {
         case ADD: return a + b;
         case SUB: return a - b;
-        case MULT: return a * b;
+        case MUL: return a * b;
         case ADDI: return a + imm;
     }
 }
@@ -121,7 +121,7 @@ void EX(Processor* p, int m, int n) {
         switch(i.opcode) {
             case ADD:
             case SUB:
-            case MULT:
+            case MUL:
             case ADDI:
                 // compute arithmetic result from a, b, and imm
                 ex_mem->alu_out = computeArith(&i, a, b, imm);
@@ -135,7 +135,7 @@ void EX(Processor* p, int m, int n) {
                 break;
         }
 
-        int cost = i.opcode == MULT ? m : n;
+        int cost = i.opcode == MUL ? m : n;
         p->ex_stall = cost + p->mem_stall;
     } else {
         p->ex_stall--;
@@ -177,7 +177,7 @@ void WB(Processor* p) {
         switch(mem_wb->ir.opcode) {
             case ADD:
             case SUB:
-            case MULT:
+            case MUL:
                 p->regs[dest] = mem_wb->alu_out;
                 break;
             case ADDI:

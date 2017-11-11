@@ -141,7 +141,7 @@ opcode parse_opcode(char* str) {
     if(strcmp("sub", str) == 0)
         return SUB;
     if(strcmp("mult", str) == 0)
-        return MULT;
+        return MUL;
     if(strcmp("beq", str) == 0)
         return BEQ;
     if(strcmp("lw", str) == 0)
@@ -155,7 +155,7 @@ int* arg_to_reg(int argc, inst* i) {
     switch(i->opcode) {
         case ADD:
         case SUB:
-        case MULT:
+        case MUL:
             switch(argc) {
                 case 1: return &(i->rd);
                 case 2: return &(i->rs);
